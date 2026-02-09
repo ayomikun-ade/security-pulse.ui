@@ -10,6 +10,7 @@ export interface Vulnerability {
   dateAdded: string;
   shortDescription: string;
   requiredAction: string;
+  priority: 'High' | 'Medium' | 'Low';
 }
 
 export interface NewsItem {
@@ -17,6 +18,7 @@ export interface NewsItem {
   link: string;
   source: string;
   date: string;
+  priority: 'High' | 'Medium' | 'Low';
 }
 
 export interface AdvisoryData {

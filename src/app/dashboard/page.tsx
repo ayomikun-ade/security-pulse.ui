@@ -7,8 +7,10 @@ import NewsCard from "../../components/NewsCard";
 
 export default function Home() {
   const [days, setDays] = useState(4);
-  const { data, isLoading, isError, error, refetch, isRefetching } = useAdvisory(days);
+  const { data, isLoading, isError, error, refetch, isRefetching } =
+    useAdvisory(days);
   const [searchTerm, setSearchTerm] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("All");
 
   if (isLoading) {
     return (
@@ -40,17 +42,19 @@ export default function Home() {
   const filteredVulns =
     data?.vulnerabilities.filter(
       (v) =>
-        v.vulnerabilityName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.vendorProject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.cveID.toLowerCase().includes(searchTerm.toLowerCase()),
+        (priorityFilter === "All" || v.priority === priorityFilter) &&
+        (v.vulnerabilityName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          v.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          v.vendorProject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          v.cveID.toLowerCase().includes(searchTerm.toLowerCase())),
     ) || [];
 
   const filteredNews =
     data?.news.filter(
       (n) =>
-        n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        n.source.toLowerCase().includes(searchTerm.toLowerCase()),
+        (priorityFilter === "All" || n.priority === priorityFilter) &&
+        (n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          n.source.toLowerCase().includes(searchTerm.toLowerCase())),
     ) || [];
 
   return (
@@ -59,14 +63,25 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              Security Pulse 🛡️
+              Security Pulse
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400">
               Daily Cybersecurity Advisory & Intelligence
             </p>
           </div>
 
-          <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="flex max-md:flex-col md:items-center gap-4 w-full md:w-auto">
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="All">All Priorities</option>
+              <option value="High">High Only</option>
+              <option value="Medium">Medium Only</option>
+              <option value="Low">Low Only</option>
+            </select>
+
             <select
               value={days}
               onChange={(e) => setDays(Number(e.target.value))}
@@ -106,7 +121,7 @@ export default function Home() {
             <button
               onClick={() => refetch()}
               disabled={isRefetching}
-              className={`p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors ${isRefetching ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`p-2 rounded-lg w-fit bg-blue-600 text-white hover:bg-blue-700 transition-colors ${isRefetching ? "opacity-50 cursor-not-allowed" : ""}`}
               title="Refresh Data"
             >
               <svg
